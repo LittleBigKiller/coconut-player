@@ -21,7 +21,15 @@ var server = http.createServer(function(req,res){
 
 server.listen(PORT, function(){
    console.log("serwer startuje na porcie " + PORT)
+   init()
 })
+
+function init() {
+    console.log("init")
+    fs.readdir(__dirname + '/static/mp3', function (err, dirs) {
+        albumPaths = dirs
+    })
+}
 
 function getResponse(req, res) {
     if (req.url.indexOf(".mp3") != -1) {
@@ -78,14 +86,15 @@ function getResponse(req, res) {
 }
 
 function postResponse(req, res) {
-    var allData = "";
+    var reqData = "";
 
     req.on("data", function (data) {
-        allData += data;
+        reqData += data;
     })
 
     req.on("end", function () {
-        var finish = qs.parse(allData)
+        var finish = qs.parse(reqData)
+        var resData = {}
         if (finish.type == 'FIRST') {
             fs.readdir(__dirname + '/static/mp3', function (err, files) {
                 if (err) {

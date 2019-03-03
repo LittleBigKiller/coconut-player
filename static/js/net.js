@@ -37,20 +37,5 @@ class Net {
         })
     }
 
-    /* getTrack(album, track) {
-        $.ajax({
-            data: {
-                type: 'TRACK',
-                album: album,
-                track: name,
-            },
-            type: "POST",
-            success: function (data) {
-                music.load(JSON.parse(data))
-            },
-            error: function (xhr, status, error) {
-                console.error(error)
-            },
-        })
-    } */
+    
 }
