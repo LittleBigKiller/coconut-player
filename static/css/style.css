@@ -96,15 +96,11 @@
 .contRow:hover .contCell {
     background-color: #338833;
 }
-.contRow:hover .contCell:nth-child(1) {
-    /* background-image: url('/static/img/play.png') */
-}
 .activeCell {
     background-color: #338833;
 }
 .activeCell:nth-child(1) {
     background-image: none;
-    /* background-image: url('/static/img/pause.png') */
 }
 
 #footer {
@@ -181,7 +177,7 @@
     color: #88DD33;
 }
 
-/*#region input stylization*/
+/*#region input range*/
 input[type=range] {
     -webkit-appearance: none;
     width: 100%;
@@ -224,7 +220,6 @@ input[type=range] {
   }
   input[type=range]::-moz-range-thumb {
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0), 0px 0px 0px rgba(13, 13, 13, 0);
-    /*border: 1px solid #000000;*/
     border: none;
     height: 10px;
     width: 10px;
