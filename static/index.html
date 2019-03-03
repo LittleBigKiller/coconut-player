@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Coconut Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <script src="/libs/jquery331.js"></script>
+    <script src="/static/music.js"></script>
+    <script src="/static/net.js"></script>
+    <script src="/static/ui.js"></script>
+    <script src="/static/main.js"></script>
+</head>
+<body>
+    <div id="main">
+        <div id="sidebar-container">
+            <div id="sidebar"></div>
+        </div>
+        <div id="display-container">
+            <div id="dispHead"></div>
+            <table id="contTable">
+
+            </table>
+        </div>
+        <div id="footer">
+            <div id="playback-info">
+                    Album / Track
+            </div>
+            <div id="playback-container">
+                <div id="playback-buttons">
+                    <div id="playback-button-prev" class="playback-button">PREV</div>
+                    <div id="playback-button-flow" class="playback-button">PLAY</div>
+                    <div id="playback-button-next" class="playback-button">NEXT</div>
+                </div>
+                <div id="playback-timestamp">
+                    <input type="range" id="playback-range" step="1" min="0" max="1000" value="0">
+                    <audio id="playback-audio">
+                        <source src=""/>
+                    </audio>
+                </div>
+            </div>
+            <div id="playback-filler"></div>
+        </div>
+    </div>
+</body>
+</html>
