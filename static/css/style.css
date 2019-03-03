@@ -32,7 +32,7 @@
 
 #display-container {
     float: left;
-    height: 90%;
+    height: 100%;
     width: 80%;
     background-color: green;
     box-sizing: border-box;
@@ -40,6 +40,7 @@
     background-size: cover;
     background-position: 50%;
     overflow: hidden auto;
+    padding-bottom: 100px;
 }
 
 #dispHead {
@@ -67,16 +68,16 @@
 .contCell, .activeCell, .emptyCell {
     border: 2px solid black;
     background-color: #888888;
-    padding: 10px;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: 50%;
+    padding: 10px;
 }
 .headCell:nth-child(1) {
-    width: 10%;
+    width: 30%;
 }
 .headCell:nth-child(2) {
-    width: 70%;
+    width: 50%;
 }
 .headCell:nth-child(3) {
     width: 20%;
@@ -84,8 +85,43 @@
 .headCell {
     border: 2px solid black;
     background-color: #8888DD;
+    font-weight: 900;
     padding: 10px;
     width: 33%;
+}
+.contButton {
+    box-sizing: border-box;
+    border: 2px solid #ffffff;
+    width: 50%;
+    text-align: center;
+    line-height: 40px;
+    float: left;
+    background-color: #555555;
+}
+.contButton:hover {
+    border-color: #DD8833;
+    color: #DD8833;
+}
+.contButton:active {
+    border-color: #88DD33;
+    color: #88DD33;
+}
+.contButtonActive {
+    box-sizing: border-box;
+    border: 2px solid #ffffff;
+    width: 50%;
+    text-align: center;
+    line-height: 40px;
+    float: left;
+    background-color: #555555;
+    border-color: #88DD33;
+    color: #88DD33;
+}
+.playlistActive:hover {
+
+}
+.playlistActive:active {
+    
 }
 
 .album {
@@ -133,7 +169,7 @@
 }
 #playback-buttons {
     box-sizing: border-box;
-    width:100%;
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
