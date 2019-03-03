@@ -1,4 +1,4 @@
-console.log("ui.js loaded")
+console.log('ui.js loaded')
 
 class Ui {
     constructor() {
@@ -19,7 +19,7 @@ class Ui {
         let timeCtrl = $('#playback-range')
 
         $('#sidebar').children().each( function (i) {
-            this.addEventListener("click", function () {
+            this.addEventListener('click', function () {
                 classRoot.dispId = i
                 net.getList()
             })
@@ -28,6 +28,7 @@ class Ui {
         $('#playback-button-prev').on('click', function () {
             music.loadPrev(classRoot.data)
         })
+
         $('#playback-button-flow').on('click', function () {
             ui.updateCtrl()
             if (audioElem.paused) {
@@ -36,18 +37,21 @@ class Ui {
                 }
                 audioElem.currentTime = timeCtrl.val()
                 audioElem.play()
-                this.innerHTML = "PAUSE"
+                this.innerHTML = 'PAUSE'
             } else {
                 audioElem.pause()
-                this.innerHTML = "PLAY"
+                this.innerHTML = 'PLAY'
             }
         })
+
         $('#playback-button-next').on('click', function () {
             music.loadNext(classRoot.data)
         })
+
         $('#playback-range').on('input', function () {
             audioElem.currentTime = timeCtrl.val()
         })
+
         $('#playback-audio').on('timeupdate', function () {
             timeCtrl.val(audioElem.currentTime)
             if (audioElem.currentTime >= audioElem.duration) {
@@ -68,8 +72,8 @@ class Ui {
         this.dispId = 0
         this.fillSidebar(this.albumNames)
 
-        this.fillTable()
         music.albumPlaylist(0)
+        this.fillTable()
     }
 
     fillSidebar() {
@@ -92,7 +96,7 @@ class Ui {
     fillTable() {
         let classRoot = this
         $('#dispHead').html(this.albumNames[this.dispId])
-        $('#display-container').css('background-image', 'url("/static/covers/' + this.albumNames[this.dispId] + '.jpg")')
+        $('#display-container').css('background-image', 'url(\'/static/covers/' + this.albumNames[this.dispId] + '.jpg\')')
         $('#contTable').html('')
         var contTable = document.getElementById('contTable')
         let row = document.createElement('tr')
@@ -131,7 +135,6 @@ class Ui {
             for (let i in classRoot.trackNames) {
                 let row = document.createElement('tr')
                 row.className = 'contRow'
-                row.isActive = false
                 rows.push(row)
 
                 let cell = document.createElement('td')
@@ -145,21 +148,14 @@ class Ui {
                 contPlay.className = 'contButton'
                 contPlay.id = 'contPlay'
                 cell.append(contPlay)
-                contPlay.addEventListener('click', function () {
-                    classRoot.albumId = classRoot.dispId
-                    classRoot.trackId = this.parentElement.savedId
-                    music.albumPlaylist(this.parentElement.savedId)
-                })
+                contPlay.addEventListener('click', ui.playHandler)
 
                 let contAdd = document.createElement('div')
                 contAdd.innerHTML = 'ADD'
                 contAdd.className = 'contButton'
                 contAdd.id = 'contAdd'
                 cell.append(contAdd)
-                contAdd.addEventListener('click', function () {
-                    ui.playlist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[i])
-                    ui.updateTable()
-                })
+                contAdd.addEventListener('click', ui.addHandler)
 
                 cell = document.createElement('td')
                 cell.innerHTML = classRoot.trackNames[i]
@@ -181,52 +177,50 @@ class Ui {
 
     updateTable () {
         for (let i in this.rows) {
-            this.rows[i].isActive = false
             let cells = Array.from(this.rows[i].children)
 
             for (let j in cells) {
                 cells[j].className = 'contCell'
 
                 if (this.dispId == this.albumId) {
-                    cells[0].children[0].innerHTML = "PLAY"
+                    cells[0].children[0].innerHTML = 'PLAY'
                     cells[0].children[0].className = 'contButton'
                 }
                     
                 for (let k in this.playlist) {
                     if (cells[1].innerHTML === this.playlist[k].split('/')[1]) {
                         console.warn('pass')
-                        cells[0].children[1].innerHTML = "ADDED"
-                        cells[0].children[1].className = 'contButtonActive'
+                        cells[0].children[1].innerHTML = 'ADDED'
+                        cells[0].children[1].className = 'playlistActive'
+                        cells[0].children[1].removeEventListener('click', ui.addHandler)
+                        cells[0].children[1].addEventListener('click', ui.removeHandler)
                         break
                     } else {
-                        cells[0].children[1].innerHTML = "ADD"
+                        cells[0].children[1].innerHTML = 'ADD'
                         cells[0].children[1].className = 'contButton'
+                        cells[0].children[1].addEventListener('click', ui.addHandler)
                     }
                 }
                 if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
                     console.warn('pass')
-                    cells[0].children[0].innerHTML = "PLAYING"
+                    cells[0].children[0].innerHTML = 'PLAYING'
                     cells[0].children[0].className = 'contButtonActive'
+                    cells[0].children[0].removeEventListener('click', ui.playHandler)
+
+                    let cellz = Array.from(cells[0].parentElement.children)
+                    for (let i in cellz) {
+                        cellz[i].className = 'activeCell'
+                    }
                     break
                 } else {
-                    cells[0].children[0].innerHTML = "PLAY"
+                    cells[0].children[0].innerHTML = 'PLAY'
                     cells[0].children[0].className = 'contButton'
                 }
             }
         }
             
         if (this.dispId == this.albumId) {
-            this.rows[this.trackId].parentElement.isActive = !this.rows[this.trackId].parentElement.isActive
-
-            let cells = Array.from(this.rows[this.trackId].children)
-            for (let i in cells) {
-                cells[i].className = 'activeCell'
-            }
-            cells[0].children[0].innerHTML = "PLAYING"
-            cells[0].children[0].className = 'contButtonActive'
-
-            cells[0].children[1].innerHTML = "ADDED"
-            cells[0].children[1].className = 'contButtonActive'
+            
         }
     }
 
@@ -239,5 +233,41 @@ class Ui {
             $('#playback-button-flow').html('PAUSE')
         }
         $('#playback-range').attr('max', parseInt(audioElem.duration))
+    }
+
+    playHandler () {
+        ui.albumId = ui.dispId
+        ui.trackId = this.parentElement.savedId
+        music.albumPlaylist(this.parentElement.savedId)
+        this.removeEventListener('click', ui.playHandler)
+    }
+
+    addHandler () {
+        ui.playlist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
+        ui.updateTable()
+        this.removeEventListener('click', ui.addHandler)
+    }
+
+    removeHandler () {
+        if (ui.playlist.length != 1) {
+            let text = this.parentElement.parentElement.children[1].innerHTML
+            let index = -1
+            for (let k in ui.playlist)
+                if (text == ui.playlist[k].split('/')[1])
+                    index = k
+            console.log(index)
+            if (index != -1)
+                ui.playlist.splice(index, 1)
+
+            if (ui.playId > index) {
+                ui.playId -= 1
+                music.loadTrack()
+            } else {
+                ui.updateTable()
+                ui.updateCtrl()
+            }
+
+            this.removeEventListener('click', ui.removeHandler)
+        }
     }
 }
