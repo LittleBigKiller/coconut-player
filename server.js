@@ -3,8 +3,7 @@ var qs = require("querystring")
 var fs = require("fs")
 var PORT = 5500
 
-var albumPaths = []
-var trackPaths = []
+var albumNames = []
 
 var server = http.createServer(function(req,res){
     console.log(req.method + ' ' + req.url)
@@ -27,7 +26,8 @@ server.listen(PORT, function(){
 function init() {
     console.log("init")
     fs.readdir(__dirname + '/static/mp3', function (err, dirs) {
-        albumPaths = dirs
+        if (err) return console.error(err)
+        albumNames = dirs
     })
 }
 
@@ -87,57 +87,46 @@ function getResponse(req, res) {
 
 function postResponse(req, res) {
     var reqData = "";
+    var resData = {}
 
     req.on("data", function (data) {
         reqData += data;
     })
 
     req.on("end", function () {
-        var finish = qs.parse(reqData)
-        var resData = {}
-        if (finish.type == 'FIRST') {
-            fs.readdir(__dirname + '/static/mp3', function (err, files) {
-                if (err) {
-                    return console.error(err)
+        reqData = qs.parse(reqData)
+        if (reqData.type == 'FIRST') {
+            resData.albumNames = albumNames
+            resData.albumId = 0
+
+            fs.readdir(__dirname + '/static/mp3/' + albumNames[0], function(err, trackNames) {
+                if (err) return console.error(err)
+
+                resData.trackNames = trackNames
+
+                resData.trackSizes = []
+                for (let i in trackNames) {
+                    resData.trackSizes.push(fs.statSync(__dirname + '/static/mp3/' + albumNames[0] + '/' + trackNames[i]).size)
                 }
-                finish.albums = files
-                finish.album = files[0]
-                fs.readdir(__dirname + '/static/mp3/' + files[0], function (err, files) {
-                    if (err) {
-                        return console.error(err)
-                    }
-                    finish.files = files
-                    finish.sizes = []
-                    for (var i in files) {
-                        console.log(fs.statSync(__dirname + '/static/mp3/' + finish.album + '/' + files[i]))
-                        finish.sizes.push(fs.statSync(__dirname + '/static/mp3/' + finish.album + '/' + files[i]).size)
-                    }
-                    res.end(JSON.stringify(finish))
-                })
+                res.end(JSON.stringify(resData))
             })
-        } else if (finish.type == 'NEXT') {
-            fs.readdir(__dirname + '/static/mp3', function (err, files) {
-                if (err) {
-                    return console.error(err)
+        } else if (reqData.type == 'ALBUM') {
+            console.log(reqData.albumId)
+            console.log(albumNames)
+            fs.readdir(__dirname + '/static/mp3/' + albumNames[reqData.albumId], function(err, trackNames) {
+                if (err) return console.error(err)
+                console.log(trackNames)
+
+                resData.trackNames = trackNames
+
+                resData.trackSizes = []
+                for (let i in trackNames) {
+                    resData.trackSizes.push(fs.statSync(__dirname + '/static/mp3/' + albumNames[reqData.albumId] + '/' + trackNames[i]).size)
                 }
-                finish.albums = files
-                fs.readdir(__dirname + '/static/mp3/' + finish.album, function (err, files) {
-                    if (err) {
-                        return console.error(err)
-                    }
-                    finish.files = files
-                    finish.sizes = []
-                    for (var i in files) {
-                        finish.sizes.push(fs.statSync(__dirname + '/static/mp3/' + finish.album + '/' + files[i]).size)
-                    }
-                    res.end(JSON.stringify(finish))
-                })
+                res.end(JSON.stringify(resData))
             })
-        } else if (finish.type == 'TRACK') {
-            fs.readFile(__dirname + '/static/mp3/' + finish.album + '/' + finish.track, function (error, file) {
-                finish.file = file
-                res.end(JSON.stringify(finish))
-            })
+        } else {
+            console.error('Invalid request')
         }
     })
 }
