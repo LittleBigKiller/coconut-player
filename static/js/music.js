@@ -6,15 +6,15 @@ class Music {
     }
 
     loadTrack() {
-        this.audioElem.find('source').prop("src", '/static/mp3/' + ui.playlist[ui.playId])
+        this.audioElem.find('source').prop('src', '/static/mp3/' + ui.playlist[ui.playId])
         this.audioElem.trigger('load')
         
         this.audioElem.bind('loadeddata', function () {
             console.log('track loaded')
+            ui.updateCtrl()
             setTimeout(() => {
-                console.error('table')
                 ui.updateCtrl()
-            }, 100)
+            }, 1000)
             ui.updateTable()
         })
     }

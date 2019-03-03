@@ -117,11 +117,25 @@
     border-color: #88DD33;
     color: #88DD33;
 }
-.playlistActive:hover {
+.playlistActive {
+    box-sizing: border-box;
+    border: 2px solid #ffffff;
+    width: 50%;
+    text-align: center;
+    line-height: 40px;
+    float: left;
+    background-color: #555555;
+    border-color: #88DD33;
+    color: #88DD33;
+}
 
+.playlistActive:hover {
+    border-color: #dd3333;
+    color: #dd3333;
 }
 .playlistActive:active {
-    
+    border-color: #dd33dd;
+    color: #dd33dd;
 }
 
 .album {

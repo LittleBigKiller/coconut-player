@@ -11,7 +11,7 @@ class Net {
             data: {
                 type: 'FIRST'
             },
-            type: "POST",
+            type: 'POST',
             success: function (data) {
                 ui.firstRun(JSON.parse(data))
             },
@@ -28,7 +28,7 @@ class Net {
                 type: 'ALBUM',
                 albumId: ui.dispId,
             },
-            type: "POST",
+            type: 'POST',
             success: function (data) {
                 ui.loadAlbum(JSON.parse(data))
             },
