@@ -32,7 +32,13 @@ function init() {
 }
 
 function getResponse(req, res) {
-    if (req.url.indexOf('.mp3') != -1) {
+    if (req.url === '/favicon.ico') {
+        fs.readFile(__dirname + '/static/img/logo.png', function (error, data) {
+            res.writeHead(200, { 'Content-type': 'image/png; charset=utf-8' })
+            res.write(data)
+            res.end()
+        })
+    } else if (req.url.indexOf('.mp3') != -1) {
         fs.readFile(__dirname + decodeURI(req.url), function (error, data) {
             res.writeHead(200, { 'Content-type': 'audio/mpeg; charset=utf-8' })
             res.write(data)
