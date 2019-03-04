@@ -6,7 +6,6 @@ class Ui {
         this.trackNames
         this.trackSizes
         this.albumId
-        this.trackId // do wywalenia
         this.dispId
         this.rows
         this.playlist = []
@@ -54,13 +53,18 @@ class Ui {
 
         $('#playback-audio').on('timeupdate', function () {
             timeCtrl.val(audioElem.currentTime)
+            $('#playback-timestamps').html(ui.readableTime(audioElem.currentTime) + '/' + ui.readableTime(audioElem.duration))
             if (audioElem.currentTime >= audioElem.duration) {
                 $('#playback-button-flow').html('PLAY')
                 timeCtrl.val(0)
                 audioElem.pause()
             }
+            ui.updateCtrl()
         })
 
+        $('#playback-volume').on('input', function () {
+            audioElem.volume = $('#playback-volume').val()
+        })
     }
 
     firstRun (data) {
@@ -68,7 +72,6 @@ class Ui {
         this.trackNames = data.trackNames
         this.trackSizes = data.trackSizes
         this.albumId = 0
-        this.trackId = 0
         this.dispId = 0
         this.fillSidebar(this.albumNames)
 
@@ -189,7 +192,6 @@ class Ui {
                     
                 for (let k in this.playlist) {
                     if (cells[1].innerHTML === this.playlist[k].split('/')[1]) {
-                        console.warn('pass')
                         cells[0].children[1].innerHTML = 'ADDED'
                         cells[0].children[1].className = 'playlistActive'
                         cells[0].children[1].removeEventListener('click', ui.addHandler)
@@ -202,7 +204,6 @@ class Ui {
                     }
                 }
                 if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
-                    console.warn('pass')
                     cells[0].children[0].innerHTML = 'PLAYING'
                     cells[0].children[0].className = 'contButtonActive'
                     cells[0].children[0].removeEventListener('click', ui.playHandler)
@@ -228,17 +229,18 @@ class Ui {
     updateCtrl() {
         let audioElem = $('#playback-audio')[0]
         $('#playback-info').html(ui.playlist[ui.playId].split('/').join(' / '))
+        $('#playback-range').val(audioElem.currentTime)
         if (audioElem.paused) {
             $('#playback-button-flow').html('PLAY')
         } else {
             $('#playback-button-flow').html('PAUSE')
         }
         $('#playback-range').attr('max', parseInt(audioElem.duration))
+        $('#playback-timestamps').html(this.readableTime(audioElem.currentTime) + '/' + this.readableTime(audioElem.duration))
     }
 
     playHandler () {
         ui.albumId = ui.dispId
-        ui.trackId = this.parentElement.savedId
         music.albumPlaylist(this.parentElement.savedId)
         this.removeEventListener('click', ui.playHandler)
     }
@@ -263,7 +265,10 @@ class Ui {
             if (index == ui.playId)
                 music.loadTrack()
 
-            if (index < ui.playId || ui.playId == ui.playlist.length) {
+            if (index < ui.playId)
+                ui.playId -= 1
+
+            if (ui.playId == ui.playlist.length) {
                 ui.playId -= 1
                 music.loadTrack()
             }
@@ -272,5 +277,17 @@ class Ui {
 
             this.removeEventListener('click', ui.removeHandler)
         }
+    }
+
+    readableTime (tempTime) {
+        let tempSeconds = parseInt(tempTime % 60)
+        let tempMinutes = parseInt((tempTime / 60) % 60)
+        //let tempHours = parseInt((tempTime / (60 * 60)) % 24)
+
+        //tempHours = (tempHours < 10) ? "0" + tempHours : tempHours
+        tempMinutes = (tempMinutes < 10) ? "0" + tempMinutes : tempMinutes
+        tempSeconds = (tempSeconds < 10) ? "0" + tempSeconds : tempSeconds
+        //tempHours + ":" + 
+        return (tempMinutes + ":" + tempSeconds)
     }
 }

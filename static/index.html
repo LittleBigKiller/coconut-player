@@ -12,7 +12,7 @@
     <script src="/js/ui.js"></script>
     <script src="/js/main.js"></script>
 </head>
-<body>
+<body ondragstart="return false;">
     <div id="main">
         <div id="sidebar-container">
             <div id="sidebar"></div>
@@ -33,14 +33,19 @@
                     <div id="playback-button-flow" class="playback-button">PLAY</div>
                     <div id="playback-button-next" class="playback-button">NEXT</div>
                 </div>
-                <div id="playback-timestamp">
+                <div id="playback-timeline">
                     <input type="range" id="playback-range" step="1" min="0" max="1000" value="0">
                     <audio id="playback-audio">
                         <source src=""/>
                     </audio>
                 </div>
             </div>
-            <div id="playback-filler"></div>
+            <div id="playback-right">
+                <div id="playback-timestamps"></div>
+                <div id="playback-panel-volume">
+                    <input type="range" id="playback-volume" step="0.01" min="0" max="1" value="0.5">
+                </div>
+            </div>
         </div>
     </div>
 </body>
