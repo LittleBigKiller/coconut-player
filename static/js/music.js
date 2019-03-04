@@ -8,6 +8,7 @@ class Music {
     loadTrack() {
         this.audioElem.find('source').prop('src', '/static/mp3/' + ui.playlist[ui.playId])
         this.audioElem.trigger('load')
+        this.audioElem.currentTime = 0
         
         this.audioElem.bind('loadeddata', function () {
             console.log('track loaded')

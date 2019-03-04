@@ -215,6 +215,7 @@ class Ui {
                 } else {
                     cells[0].children[0].innerHTML = 'PLAY'
                     cells[0].children[0].className = 'contButton'
+                    cells[0].children[0].addEventListener('click', ui.playHandler)
                 }
             }
         }
@@ -259,13 +260,15 @@ class Ui {
             if (index != -1)
                 ui.playlist.splice(index, 1)
 
-            if (ui.playId > index) {
+            if (index == ui.playId)
+                music.loadTrack()
+
+            if (index < ui.playId || ui.playId == ui.playlist.length) {
                 ui.playId -= 1
                 music.loadTrack()
-            } else {
-                ui.updateTable()
-                ui.updateCtrl()
             }
+            
+            ui.updateTable()
 
             this.removeEventListener('click', ui.removeHandler)
         }
