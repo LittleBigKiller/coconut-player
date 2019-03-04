@@ -9,27 +9,29 @@ class Music {
         this.audioElem.find('source').prop('src', '/static/mp3/' + ui.playlist[ui.playId])
         this.audioElem.trigger('load')
         this.audioElem.currentTime = 0
+        this.audioElem[0].volume = $('#playback-volume').val()
         
-        this.audioElem.bind('loadeddata', function () {
-            console.log('track loaded')
+        this.audioElem.on('loadeddata', function () {
+            //console.log('track loaded')
             ui.updateCtrl()
-            setInterval(() => {
-                ui.updateCtrl()
-            }, 1000)
+            setTimeout(() => { ui.updateCtrl() }, 1000)
+            setTimeout(() => { ui.updateCtrl() }, 2000)
             ui.updateTable()
         })
     }
 
     loadNext() {
-        if (ui.playId != ui.playlist.length - 1) ui.playId++;
-
-        this.loadTrack()
+        if (ui.playId != ui.playlist.length - 1) {
+            ui.playId++
+            this.loadTrack()
+        }
     }
 
     loadPrev() {
-        if (ui.playId != 0) ui.playId--;
-
-        this.loadTrack()
+        if (ui.playId != 0) {
+            ui.playId--
+            this.loadTrack()
+        }
     }
 
     albumPlaylist(id) {
