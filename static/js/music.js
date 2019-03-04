@@ -13,7 +13,7 @@ class Music {
         this.audioElem.bind('loadeddata', function () {
             console.log('track loaded')
             ui.updateCtrl()
-            setTimeout(() => {
+            setInterval(() => {
                 ui.updateCtrl()
             }, 1000)
             ui.updateTable()
