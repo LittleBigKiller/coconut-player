@@ -5,40 +5,41 @@ class Music {
         this.audioElem = $('#playback-audio')
     }
 
-    loadTrack(data, id) {
-        let classRoot = this
-        console.log('music.loadTrack')
-        ui.trackId = id
-        this.audioElem.find('source').prop("src", '/static/mp3/' + data.album + '/' + data.files[id])
+    loadTrack() {
+        this.audioElem.find('source').prop('src', '/static/mp3/' + ui.playlist[ui.playId])
         this.audioElem.trigger('load')
-        data.id = id
+        this.audioElem.currentTime = 0
+        this.audioElem[0].volume = $('#playback-volume').val()
         
-        this.audioElem.bind('loadeddata', function () {
-            console.log('track loaded')
-            ui.updateCtrl(data, id)
-            ui.updateTable(data, id)
+        this.audioElem.on('loadeddata', function () {
+            //console.log('track loaded')
+            ui.updateCtrl()
+            setTimeout(() => { ui.updateCtrl() }, 1000)
+            setTimeout(() => { ui.updateCtrl() }, 2000)
+            ui.updateTable()
         })
     }
 
-    loadNext(data) {
-        console.log(data.files)
-        if (ui.trackId != data.files.length - 1) {
-            ui.trackId++;
+    loadNext() {
+        if (ui.playId != ui.playlist.length - 1) {
+            ui.playId++
+            this.loadTrack()
         }
-
-        this.loadTrack(data, ui.trackId)
     }
 
-    loadPrev(data) {
-        console.log('music.loadPrev')
-        if (ui.trackId != 0) {
-            ui.trackId--;
+    loadPrev() {
+        if (ui.playId != 0) {
+            ui.playId--
+            this.loadTrack()
         }
-
-        this.loadTrack(data, ui.trackId)
     }
 
-    flowCtrl() {
-        console.log('music.flowCtrl')
+    albumPlaylist(id) {
+        ui.playlist = []
+        ui.playId = id
+        for (let i in ui.trackNames) {
+            ui.playlist.push(ui.albumNames[ui.albumId] + '/' + ui.trackNames[i])
+        }
+        this.loadTrack()
     }
 }

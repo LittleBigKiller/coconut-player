@@ -6,30 +6,31 @@ class Net {
     }
 
     firstReq() {
+        console.log('net.firstReq')
         $.ajax({
             data: {
                 type: 'FIRST'
             },
-            type: "POST",
+            type: 'POST',
             success: function (data) {
                 ui.firstRun(JSON.parse(data))
             },
             error: function (xhr, status, error) {
-                console.log(xhr)
+                console.log(error)
             },
         })
     }
 
-    getList(album) {
+    getList() {
+        console.log('net.getList')
         $.ajax({
             data: {
-                type: 'NEXT',
-                album: album,
+                type: 'ALBUM',
+                albumId: ui.dispId,
             },
-            type: "POST",
+            type: 'POST',
             success: function (data) {
-                //console.log(JSON.parse(data))
-                ui.fillTable(JSON.parse(data))
+                ui.loadAlbum(JSON.parse(data))
             },
             error: function (xhr, status, error) {
                 console.error(error)
@@ -37,20 +38,5 @@ class Net {
         })
     }
 
-    /* getTrack(album, track) {
-        $.ajax({
-            data: {
-                type: 'TRACK',
-                album: album,
-                track: name,
-            },
-            type: "POST",
-            success: function (data) {
-                music.load(JSON.parse(data))
-            },
-            error: function (xhr, status, error) {
-                console.error(error)
-            },
-        })
-    } */
+
 }

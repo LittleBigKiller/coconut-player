@@ -1,79 +1,105 @@
-console.log("ui.js loaded")
+console.log('ui.js loaded')
 
 class Ui {
     constructor() {
-        this.data
+        this.albumNames
+        this.trackNames
+        this.trackSizes
+        this.albumId
+        this.dispId
         this.rows
-        this.trackId = 0
-        this.albumId = 0
+        this.playlist = []
+        this.playId
     }
 
     clicks() {
         var classRoot = this
         let audioElem = $('#playback-audio')[0]
         let timeCtrl = $('#playback-range')
+
         $('#sidebar').children().each( function (i) {
-            this.addEventListener("click", function () {
-                net.getList(classRoot.data.albums[i])
+            this.addEventListener('click', function () {
+                classRoot.dispId = i
+                net.getList()
             })
         })
+
         $('#playback-button-prev').on('click', function () {
             music.loadPrev(classRoot.data)
         })
+
         $('#playback-button-flow').on('click', function () {
-            ui.updateCtrl(ui.data, ui.trackId)
+            ui.updateCtrl()
             if (audioElem.paused) {
                 if (audioElem.currentTime == audioElem.duration) {
                     timeCtrl.val(0)
                 }
                 audioElem.currentTime = timeCtrl.val()
                 audioElem.play()
-                this.innerHTML = "PAUSE"
+                this.innerHTML = 'PAUSE'
             } else {
                 audioElem.pause()
-                this.innerHTML = "PLAY"
+                this.innerHTML = 'PLAY'
             }
         })
+
         $('#playback-button-next').on('click', function () {
             music.loadNext(classRoot.data)
         })
+
         $('#playback-range').on('input', function () {
             audioElem.currentTime = timeCtrl.val()
         })
+
         $('#playback-audio').on('timeupdate', function () {
             timeCtrl.val(audioElem.currentTime)
+            $('#playback-timestamps').html(ui.readableTime(audioElem.currentTime) + '/' + ui.readableTime(audioElem.duration))
             if (audioElem.currentTime >= audioElem.duration) {
                 $('#playback-button-flow').html('PLAY')
                 timeCtrl.val(0)
                 audioElem.pause()
             }
+            ui.updateCtrl()
         })
 
+        $('#playback-volume').on('input', function () {
+            audioElem.volume = $('#playback-volume').val()
+        })
     }
 
     firstRun (data) {
-        this.data = data
-        this.fillSidebar(data.albums)
+        this.albumNames = data.albumNames
+        this.trackNames = data.trackNames
+        this.trackSizes = data.trackSizes
+        this.albumId = 0
+        this.dispId = 0
+        this.fillSidebar(this.albumNames)
 
-        this.fillTable(data)
-        music.loadTrack(data, 0)
+        music.albumPlaylist(0)
+        this.fillTable()
     }
 
-    fillSidebar(names) {
-        for (var i in names) {
+    fillSidebar() {
+        for (var i in this.albumNames) {
             var cover = new Image()
             cover.className = 'album'
-            cover.src = '/static/covers/' + names[i] + '.jpg'
+            cover.src = '/static/covers/' + this.albumNames[i] + '.jpg'
             $('#sidebar').append(cover)
         }
         this.clicks()
     }
 
-    fillTable(data) {
+    loadAlbum(data) {
+        this.trackNames = data.trackNames
+        this.trackSizes = data.trackSizes
+
+        this.fillTable()
+    }
+
+    fillTable() {
         let classRoot = this
-        this.data = data
-        $('#dispHead').html(data.album)
-        $('#display-container').css('background-image', 'url("/static/covers/' + data.album + '.jpg")')
+        $('#dispHead').html(this.albumNames[this.dispId])
+        $('#display-container').css('background-image', 'url(\'/static/covers/' + this.albumNames[this.dispId] + '.jpg\')')
         $('#contTable').html('')
         var contTable = document.getElementById('contTable')
         let row = document.createElement('tr')
@@ -95,7 +121,7 @@ class Ui {
         row.appendChild(cell)
         contTable.appendChild(row)
 
-        if (data.files.length == 0) {
+        if (this.trackNames.length == 0) {
             let row = document.createElement('tr')
             row.className = 'contRow'
 
@@ -109,85 +135,159 @@ class Ui {
         } else {
             classRoot.rows = []
             let rows = classRoot.rows
-            for (var i in data.files) {
+            for (let i in classRoot.trackNames) {
                 let row = document.createElement('tr')
                 row.className = 'contRow'
-                row.isActive = false
                 rows.push(row)
-                row.addEventListener('mouseenter', function () {
-                    //if (!this.isActive) {
-                    //    let cells = Array.from(this.children)
-                    //    cells[0].innerHTML = ''
-                    //}
-                })
-                row.addEventListener('mouseleave', function () {
-                    //if (!this.isActive) {
-                    //    let cells = Array.from(this.children)
-                    //    cells[0].innerHTML = parseInt(cells[0].savedId) + 1
-                    //}
-                })
 
                 let cell = document.createElement('td')
                 cell.savedId = i
-                cell.innerHTML = (parseInt(i) + 1)
                 cell.className = 'contCell'
-                cell.id = 'contPlay'
-                cell.isClicked = false
-                row.appendChild(cell)
-                cell.addEventListener('click', function () {
-                    classRoot.albumId = data.albums.indexOf(data.album)
-                    classRoot.trackId = this.savedId
-                    music.loadTrack(data, classRoot.trackId)
-                })
-
-                cell = document.createElement('td')
-                cell.innerHTML = data.files[i]
-                    .substring(3)   // Odcięcie numeracji pomocniczej
-                    .slice(0, -4)   // Odcięcie typu pliku
-                cell.className = 'contCell'
+                cell.id = 'contCtrl'
                 row.appendChild(cell)
 
+                let contPlay = document.createElement('div')
+                contPlay.innerHTML = 'PLAY'
+                contPlay.className = 'contButton'
+                contPlay.id = 'contPlay'
+                cell.append(contPlay)
+                contPlay.addEventListener('click', ui.playHandler)
+
+                let contAdd = document.createElement('div')
+                contAdd.innerHTML = 'ADD'
+                contAdd.className = 'contButton'
+                contAdd.id = 'contAdd'
+                cell.append(contAdd)
+                contAdd.addEventListener('click', ui.addHandler)
+
                 cell = document.createElement('td')
-                cell.innerHTML = (data.sizes[i] / 1024 / 1024).toFixed(2) + ' MB'
+                cell.innerHTML = classRoot.trackNames[i]
+                    //.substring(3)   // Odcięcie numeracji pomocniczej
+                    //.slice(0, -4)   // Odcięcie typu pliku
+                cell.className = 'contCell'
+                row.appendChild(cell)
+
+                cell = document.createElement('td')
+                cell.innerHTML = (classRoot.trackSizes[i] / 1024 / 1024).toFixed(2) + ' MB'
                 cell.className = 'contCell'
                 row.appendChild(cell)
 
                 contTable.appendChild(row)
             }
         }
-        this.updateTable(data, this.trackId)
+        this.updateTable()
     }
 
-    updateTable (data, elemId) {
-        if (data.album == data.albums[ui.albumId]) {
-            for (let i in ui.rows) {
-                ui.rows[i].isActive = false
-                let cells = Array.from(ui.rows[i].children)
-                for (let j in cells) {
-                    cells[j].className = 'contCell'
-                }
-                cells[0].innerHTML = (parseInt(cells[0].savedId) + 1)
-            }
-            ui.rows[elemId].parentElement.isActive = !ui.rows[elemId].parentElement.isActive
+    updateTable () {
+        for (let i in this.rows) {
+            let cells = Array.from(this.rows[i].children)
 
-            let cells = Array.from(ui.rows[elemId].children)
-            for (let i in cells) {
-                cells[i].className = 'activeCell'
+            for (let j in cells) {
+                cells[j].className = 'contCell'
+
+                if (this.dispId == this.albumId) {
+                    cells[0].children[0].innerHTML = 'PLAY'
+                    cells[0].children[0].className = 'contButton'
+                }
+                    
+                for (let k in this.playlist) {
+                    if (cells[1].innerHTML === this.playlist[k].split('/')[1]) {
+                        cells[0].children[1].innerHTML = 'ADDED'
+                        cells[0].children[1].className = 'playlistActive'
+                        cells[0].children[1].removeEventListener('click', ui.addHandler)
+                        cells[0].children[1].addEventListener('click', ui.removeHandler)
+                        break
+                    } else {
+                        cells[0].children[1].innerHTML = 'ADD'
+                        cells[0].children[1].className = 'contButton'
+                        cells[0].children[1].addEventListener('click', ui.addHandler)
+                    }
+                }
+                if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
+                    cells[0].children[0].innerHTML = 'PLAYING'
+                    cells[0].children[0].className = 'contButtonActive'
+                    cells[0].children[0].removeEventListener('click', ui.playHandler)
+
+                    let cellz = Array.from(cells[0].parentElement.children)
+                    for (let i in cellz) {
+                        cellz[i].className = 'activeCell'
+                    }
+                    break
+                } else {
+                    cells[0].children[0].innerHTML = 'PLAY'
+                    cells[0].children[0].className = 'contButton'
+                    cells[0].children[0].addEventListener('click', ui.playHandler)
+                }
             }
-            cells[0].innerHTML = 'LOADED'
-        } else {
-            console.log('ignored')
+        }
+            
+        if (this.dispId == this.albumId) {
+            
         }
     }
 
-    updateCtrl(data, id) {
+    updateCtrl() {
         let audioElem = $('#playback-audio')[0]
-        $('#playback-info').html(this.data.album + ' / ' + this.data.files[id])
+        $('#playback-info').html(ui.playlist[ui.playId].split('/').join(' / '))
+        $('#playback-range').val(audioElem.currentTime)
         if (audioElem.paused) {
             $('#playback-button-flow').html('PLAY')
         } else {
             $('#playback-button-flow').html('PAUSE')
         }
         $('#playback-range').attr('max', parseInt(audioElem.duration))
+        $('#playback-timestamps').html(this.readableTime(audioElem.currentTime) + '/' + this.readableTime(audioElem.duration))
+    }
+
+    playHandler () {
+        ui.albumId = ui.dispId
+        music.albumPlaylist(this.parentElement.savedId)
+        this.removeEventListener('click', ui.playHandler)
+    }
+
+    addHandler () {
+        ui.playlist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
+        ui.updateTable()
+        this.removeEventListener('click', ui.addHandler)
+    }
+
+    removeHandler () {
+        if (ui.playlist.length != 1) {
+            let text = this.parentElement.parentElement.children[1].innerHTML
+            let index = -1
+            for (let k in ui.playlist)
+                if (text == ui.playlist[k].split('/')[1])
+                    index = k
+            console.log(index)
+            if (index != -1)
+                ui.playlist.splice(index, 1)
+
+            if (index == ui.playId)
+                music.loadTrack()
+
+            if (index < ui.playId)
+                ui.playId -= 1
+
+            if (ui.playId == ui.playlist.length) {
+                ui.playId -= 1
+                music.loadTrack()
+            }
+            
+            ui.updateTable()
+
+            this.removeEventListener('click', ui.removeHandler)
+        }
+    }
+
+    readableTime (tempTime) {
+        let tempSeconds = parseInt(tempTime % 60)
+        let tempMinutes = parseInt((tempTime / 60) % 60)
+        //let tempHours = parseInt((tempTime / (60 * 60)) % 24)
+
+        //tempHours = (tempHours < 10) ? "0" + tempHours : tempHours
+        tempMinutes = (tempMinutes < 10) ? "0" + tempMinutes : tempMinutes
+        tempSeconds = (tempSeconds < 10) ? "0" + tempSeconds : tempSeconds
+        //tempHours + ":" + 
+        return (tempMinutes + ":" + tempSeconds)
     }
 }
