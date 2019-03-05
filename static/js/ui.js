@@ -12,6 +12,7 @@ class Ui {
         this.playId
         this.customPlaylist = []
         this.customOn = false
+        this.customPlaying = false
     }
 
     clicks() {
@@ -206,30 +207,32 @@ class Ui {
                 cells[0].children[1].innerHTML = 'ADD'
                 cells[0].children[1].className = 'contButton'
                 cells[0].children[1].addEventListener('click', ui.addHandler)
-                    
+                
                 for (let k in this.customPlaylist) {
                     if (cells[1].innerHTML === this.customPlaylist[k].split('/')[1]) {
                         cells[0].children[1].innerHTML = 'ADDED'
-                        cells[0].children[1].className = 'playlistActive'
+                            cells[0].children[1].className = 'playlistActive'
                         cells[0].children[1].removeEventListener('click', ui.addHandler)
                         cells[0].children[1].addEventListener('click', ui.removeHandler)
                         break
                     }
                 }
-                if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
-                    cells[0].children[0].innerHTML = 'LOADED'
-                    cells[0].children[0].className = 'contButtonActive'
-                    cells[0].children[0].removeEventListener('click', ui.playHandler)
+                if ((!ui.customOn && !ui.customPlaying) || (ui.customOn && ui.customPlaying)) {
+                    if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
+                        cells[0].children[0].innerHTML = 'LOADED'
+                        cells[0].children[0].className = 'contButtonActive'
+                        cells[0].children[0].removeEventListener('click', ui.playHandler)
 
-                    let cellz = Array.from(cells[0].parentElement.children)
-                    for (let i in cellz) {
-                        cellz[i].className = 'activeCell'
+                        let cellz = Array.from(cells[0].parentElement.children)
+                        for (let i in cellz) {
+                            cellz[i].className = 'activeCell'
+                        }
+                        break
+                    } else {
+                        cells[0].children[0].innerHTML = 'LOAD'
+                        cells[0].children[0].className = 'contButton'
+                        cells[0].children[0].addEventListener('click', ui.playHandler)
                     }
-                    break
-                } else {
-                    cells[0].children[0].innerHTML = 'LOAD'
-                    cells[0].children[0].className = 'contButton'
-                    cells[0].children[0].addEventListener('click', ui.playHandler)
                 }
             }
         }
@@ -255,9 +258,11 @@ class Ui {
     playHandler () {
         if (ui.customOn) {
             ui.customLoad(this.parentElement.savedId)
+            ui.customPlaying = true
         } else {
             ui.albumId = ui.dispId
             music.albumPlaylist(this.parentElement.savedId)
+            ui.customPlaying = false
         }
         this.removeEventListener('click', ui.playHandler)
         ui.playbackFlow();
@@ -265,8 +270,12 @@ class Ui {
 
     addHandler () {
         ui.customPlaylist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
-        ui.updateTable()
+        ui.updateTable()        
         this.removeEventListener('click', ui.addHandler)
+
+        if (ui.customPlaying)
+            ui.customLoad(ui.playId)
+            setTimeout(ui.playbackFlow, 10)
     }
 
     removeHandler () {
@@ -282,17 +291,21 @@ class Ui {
             if (index == ui.playId)
                 music.loadTrack()
 
-            //if (index < ui.playId)
-            //    ui.playId -= 1
+            if (ui.customPlaying) {
+                if (index < ui.playId)
+                    ui.playId -= 1
 
-            //if (ui.playId == ui.customPlaylist.length) {
-            //    ui.playId -= 1
-            //    music.loadTrack()
-            //}
+                if (ui.playId == ui.customPlaylist.length) {
+                    ui.playId -= 1
+                    music.loadTrack()
+                }
+                ui.customLoad(ui.playId)
+            }
             
             ui.updateTable()
             if (ui.customOn) {
                 ui.customDisplay()
+                setTimeout(ui.playbackFlow, 10)
             }
 
             this.removeEventListener('click', ui.removeHandler)
@@ -326,6 +339,7 @@ class Ui {
             ui.trackNames.push(ui.customPlaylist[i].split('/')[1])
         }
         ui.fillTable()
+        ui.updateTable()
     }
 
     customLoad(id) {
