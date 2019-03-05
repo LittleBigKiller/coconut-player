@@ -12,7 +12,6 @@ class Music {
         this.audioElem[0].volume = $('#playback-volume').val()
         
         this.audioElem.on('loadeddata', function () {
-            //console.log('track loaded')
             ui.updateCtrl()
             setTimeout(() => { ui.updateCtrl() }, 1000)
             setTimeout(() => { ui.updateCtrl() }, 2000)
@@ -24,6 +23,7 @@ class Music {
         if (ui.playId != ui.playlist.length - 1) {
             ui.playId++
             this.loadTrack()
+            ui.playbackFlow()
         }
     }
 
@@ -31,6 +31,7 @@ class Music {
         if (ui.playId != 0) {
             ui.playId--
             this.loadTrack()
+            ui.playbackFlow()
         }
     }
 
