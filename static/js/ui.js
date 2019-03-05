@@ -10,6 +10,8 @@ class Ui {
         this.rows
         this.playlist = []
         this.playId
+        this.customPlaylist = []
+        this.customOn = false
     }
 
     clicks() {
@@ -21,6 +23,7 @@ class Ui {
             this.addEventListener('click', function () {
                 classRoot.dispId = i
                 net.getList()
+                ui.customOn = false
             })
         })
 
@@ -29,18 +32,7 @@ class Ui {
         })
 
         $('#playback-button-flow').on('click', function () {
-            ui.updateCtrl()
-            if (audioElem.paused) {
-                if (audioElem.currentTime == audioElem.duration) {
-                    timeCtrl.val(0)
-                }
-                audioElem.currentTime = timeCtrl.val()
-                audioElem.play()
-                this.innerHTML = 'PAUSE'
-            } else {
-                audioElem.pause()
-                this.innerHTML = 'PLAY'
-            }
+            ui.playbackFlow()
         })
 
         $('#playback-button-next').on('click', function () {
@@ -65,6 +57,14 @@ class Ui {
         $('#playback-volume').on('input', function () {
             audioElem.volume = $('#playback-volume').val()
         })
+
+        $('#custom-load').on('click', function () {
+            ui.customLoad(0)
+        })
+
+        $('#custom-display').on('click', function () {
+            ui.customDisplay()
+        })
     }
 
     firstRun (data) {
@@ -74,6 +74,7 @@ class Ui {
         this.albumId = 0
         this.dispId = 0
         this.fillSidebar(this.albumNames)
+        ui.albumNames.push('Custom Playlist')
 
         music.albumPlaylist(0)
         this.fillTable()
@@ -87,6 +88,13 @@ class Ui {
             $('#sidebar').append(cover)
         }
         this.clicks()
+
+        var cover = new Image()
+        cover.className = 'album'
+        cover.src = '/static/covers/custom.jpg'
+        $('#sidebar').append(cover)
+        
+        cover.addEventListener('click', ui.customDisplay)
     }
 
     loadAlbum(data) {
@@ -98,8 +106,13 @@ class Ui {
 
     fillTable() {
         let classRoot = this
-        $('#dispHead').html(this.albumNames[this.dispId])
-        $('#display-container').css('background-image', 'url(\'/static/covers/' + this.albumNames[this.dispId] + '.jpg\')')
+        if (ui.customOn) {
+            $('#dispHead').html('Custom Playlist')
+            $('#display-container').css('background-image', 'url(\'/static/covers/custom.jpg\')')
+        } else {
+            $('#dispHead').html(this.albumNames[this.dispId])
+            $('#display-container').css('background-image', 'url(\'/static/covers/' + this.albumNames[this.dispId] + '.jpg\')')
+        }
         $('#contTable').html('')
         var contTable = document.getElementById('contTable')
         let row = document.createElement('tr')
@@ -147,7 +160,7 @@ class Ui {
                 row.appendChild(cell)
 
                 let contPlay = document.createElement('div')
-                contPlay.innerHTML = 'PLAY'
+                contPlay.innerHTML = 'LOAD'
                 contPlay.className = 'contButton'
                 contPlay.id = 'contPlay'
                 cell.append(contPlay)
@@ -186,25 +199,25 @@ class Ui {
                 cells[j].className = 'contCell'
 
                 if (this.dispId == this.albumId) {
-                    cells[0].children[0].innerHTML = 'PLAY'
+                    cells[0].children[0].innerHTML = 'LOAD'
                     cells[0].children[0].className = 'contButton'
                 }
+
+                cells[0].children[1].innerHTML = 'ADD'
+                cells[0].children[1].className = 'contButton'
+                cells[0].children[1].addEventListener('click', ui.addHandler)
                     
-                for (let k in this.playlist) {
-                    if (cells[1].innerHTML === this.playlist[k].split('/')[1]) {
+                for (let k in this.customPlaylist) {
+                    if (cells[1].innerHTML === this.customPlaylist[k].split('/')[1]) {
                         cells[0].children[1].innerHTML = 'ADDED'
                         cells[0].children[1].className = 'playlistActive'
                         cells[0].children[1].removeEventListener('click', ui.addHandler)
                         cells[0].children[1].addEventListener('click', ui.removeHandler)
                         break
-                    } else {
-                        cells[0].children[1].innerHTML = 'ADD'
-                        cells[0].children[1].className = 'contButton'
-                        cells[0].children[1].addEventListener('click', ui.addHandler)
                     }
                 }
                 if (cells[1].innerHTML === this.playlist[this.playId].split('/')[1]) {
-                    cells[0].children[0].innerHTML = 'PLAYING'
+                    cells[0].children[0].innerHTML = 'LOADED'
                     cells[0].children[0].className = 'contButtonActive'
                     cells[0].children[0].removeEventListener('click', ui.playHandler)
 
@@ -214,7 +227,7 @@ class Ui {
                     }
                     break
                 } else {
-                    cells[0].children[0].innerHTML = 'PLAY'
+                    cells[0].children[0].innerHTML = 'LOAD'
                     cells[0].children[0].className = 'contButton'
                     cells[0].children[0].addEventListener('click', ui.playHandler)
                 }
@@ -240,42 +253,91 @@ class Ui {
     }
 
     playHandler () {
-        ui.albumId = ui.dispId
-        music.albumPlaylist(this.parentElement.savedId)
+        if (ui.customOn) {
+            ui.customLoad(this.parentElement.savedId)
+        } else {
+            ui.albumId = ui.dispId
+            music.albumPlaylist(this.parentElement.savedId)
+        }
         this.removeEventListener('click', ui.playHandler)
+        ui.playbackFlow();
     }
 
     addHandler () {
-        ui.playlist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
+        ui.customPlaylist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
         ui.updateTable()
         this.removeEventListener('click', ui.addHandler)
     }
 
     removeHandler () {
-        if (ui.playlist.length != 1) {
+        if (ui.customPlaylist.length != 0) {
             let text = this.parentElement.parentElement.children[1].innerHTML
             let index = -1
-            for (let k in ui.playlist)
-                if (text == ui.playlist[k].split('/')[1])
+            for (let k in ui.customPlaylist)
+                if (text == ui.customPlaylist[k].split('/')[1])
                     index = k
-            console.log(index)
             if (index != -1)
-                ui.playlist.splice(index, 1)
+                ui.customPlaylist.splice(index, 1)
 
             if (index == ui.playId)
                 music.loadTrack()
 
-            if (index < ui.playId)
-                ui.playId -= 1
+            //if (index < ui.playId)
+            //    ui.playId -= 1
 
-            if (ui.playId == ui.playlist.length) {
-                ui.playId -= 1
-                music.loadTrack()
-            }
+            //if (ui.playId == ui.customPlaylist.length) {
+            //    ui.playId -= 1
+            //    music.loadTrack()
+            //}
             
             ui.updateTable()
+            if (ui.customOn) {
+                ui.customDisplay()
+            }
 
             this.removeEventListener('click', ui.removeHandler)
+        }
+    }
+
+    playbackFlow() {
+        let audioElem = $('#playback-audio')[0]
+        let timeCtrl = $('#playback-range')
+        ui.updateCtrl()
+        if (audioElem.paused) {
+            if (audioElem.currentTime == audioElem.duration) {
+                timeCtrl.val(0)
+            }
+            audioElem.currentTime = timeCtrl.val()
+            audioElem.play()
+            this.innerHTML = 'PAUSE'
+        } else {
+            audioElem.pause()
+            this.innerHTML = 'PLAY'
+        }
+    }
+
+    customDisplay() {
+        ui.customOn = true
+        ui.trackNames = []
+        ui.albumId = ui.albumNames.length - 1
+        console.log(ui.customPlaylist)
+        for (let i in ui.customPlaylist) {
+            console.log(ui.customPlaylist[i].split('/')[1])
+            ui.trackNames.push(ui.customPlaylist[i].split('/')[1])
+        }
+        ui.fillTable()
+    }
+
+    customLoad(id) {
+        if (ui.customPlaylist.length == 0) {
+            console.error('custom jest pusty')
+        } else {
+            ui.playlist = []
+            ui.playId = id
+            for (let i in ui.customPlaylist) {
+                ui.playlist.push(ui.customPlaylist[i])
+            }
+            music.loadTrack()
         }
     }
 
