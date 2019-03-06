@@ -119,7 +119,7 @@ function postResponse(req, res) {
                 res.end(JSON.stringify(resData))
             })
         } else if (reqData.type == 'ALBUM') {
-            console.log(reqData.albumId)
+            console.log('albumId: ' + reqData.albumId)
             console.log(albumNames)
             fs.readdir(__dirname + '/static/mp3/' + albumNames[reqData.albumId], function(err, trackNames) {
                 if (err) return console.error(err)
