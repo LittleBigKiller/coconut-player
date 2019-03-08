@@ -3,6 +3,27 @@ console.log('music.js loaded')
 class Music {
     constructor() {
         this.audioElem = $('#playback-audio')
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioContext = new AudioContext()
+        this.source = this.audioContext.createMediaElementSource(this.audioElem[0])
+        this.analyser = this.audioContext.createAnalyser()
+        this.source.connect(this.analyser)
+        this.analyser.connect(this.audioContext.destination)
+        this.analyser.fftSize = 64
+        this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
+    }
+
+    logAll() {
+        console.log(this.audioElem)
+        console.log(this.audioContext)
+        console.log(this.source)
+        console.log(this.analyser)
+        console.log(this.dataArray)
+    }
+
+    getTrackData() {
+        this.analyser.getByteFrequencyData(this.dataArray)
+        return this.dataArray.toString()
     }
 
     loadTrack() {

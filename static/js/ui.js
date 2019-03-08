@@ -13,6 +13,7 @@ class Ui {
         this.customPlaylist = []
         this.customOn = false
         this.customPlaying = false
+        this.visOn = false
     }
 
     clicks() {
@@ -65,6 +66,18 @@ class Ui {
 
         $('#custom-display').on('click', function () {
             ui.customDisplay()
+        })
+
+        $('#playback-disp-switch').on('click', function () {
+            console.log('LMAO')
+            if (this.visOn) {
+                $('#visual-container').css('display', 'none')
+                $('#display-container').css('display', 'block')
+            } else {
+                $('#visual-container').css('display', 'block')
+                $('#display-container').css('display', 'none')
+            }
+            this.visOn = !this.visOn
         })
     }
 
@@ -313,6 +326,7 @@ class Ui {
     }
 
     playbackFlow() {
+        music.audioContext.resume()
         let audioElem = $('#playback-audio')[0]
         let timeCtrl = $('#playback-range')
         ui.updateCtrl()

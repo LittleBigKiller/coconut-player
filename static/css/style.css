@@ -43,6 +43,21 @@
     padding-bottom: 100px;
 }
 
+#visual-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 80%;
+    background-color: green;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50%;
+    overflow: hidden auto;
+    padding-bottom: 100px;
+}
+
 #dispHead {
     font-size: 4em;
     font-weight: 900;
@@ -239,6 +254,13 @@
 .playback-button:active {
     border-color: #88DD33;
     color: #88DD33;
+}
+
+.visBar {
+    position: absolute;
+    display: block;
+    top: 0;
+    background-color: #338833;
 }
 
 /*#region input range*/
