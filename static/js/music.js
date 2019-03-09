@@ -21,9 +21,14 @@ class Music {
         console.log(this.dataArray)
     }
 
-    getTrackData() {
+    getTestData() {
         this.analyser.getByteFrequencyData(this.dataArray)
         return this.dataArray.toString()
+    }
+
+    getTrackData() {
+        this.analyser.getByteFrequencyData(this.dataArray)
+        return this.dataArray
     }
 
     loadTrack() {

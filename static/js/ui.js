@@ -13,7 +13,6 @@ class Ui {
         this.customPlaylist = []
         this.customOn = false
         this.customPlaying = false
-        this.visOn = false
     }
 
     clicks() {
@@ -69,13 +68,12 @@ class Ui {
         })
 
         $('#playback-disp-switch').on('click', function () {
-            console.log('LMAO')
-            if (this.visOn) {
+            if ($('#visual-container').css('display') == 'block') {
                 $('#visual-container').css('display', 'none')
-                $('#display-container').css('display', 'block')
+                vis.remElems()
             } else {
                 $('#visual-container').css('display', 'block')
-                $('#display-container').css('display', 'none')
+                vis.genElems()
             }
             this.visOn = !this.visOn
         })

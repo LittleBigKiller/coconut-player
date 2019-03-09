@@ -31,16 +31,19 @@
 }
 
 #display-container {
+    position: absolute;
+    top: 0;
+    right: -20px;
     float: left;
     height: 100%;
     width: 80%;
-    background-color: green;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
-    overflow: hidden auto;
-    padding-bottom: 100px;
+    overflow: hidden scroll;
+    margin-bottom: 100px;
+    padding-right: 20px;
 }
 
 #visual-container {
@@ -49,16 +52,18 @@
     right: 0;
     height: 100%;
     width: 80%;
-    background-color: green;
     box-sizing: border-box;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
     overflow: hidden auto;
     padding-bottom: 100px;
+    pointer-events: none;
 }
 
 #dispHead {
+    position: relative;
+    z-index: 2;
     font-size: 4em;
     font-weight: 900;
     width: 100%;
@@ -175,6 +180,8 @@
 }
 
 #footer {
+    position: relative;
+    z-index: 3;
     display: flex;
     position: fixed;
     background-color: #333333;
@@ -256,11 +263,21 @@
     color: #88DD33;
 }
 
-.visBar {
+.visBarTop {
     position: absolute;
     display: block;
     top: 0;
-    background-color: #338833;
+    opacity: 0.9;
+    box-sizing: border-box;
+    border: 1px solid #ffffff88;
+}
+.visBarBottom {
+    position: absolute;
+    display: block;
+    bottom: 100px;
+    opacity: 0.9;
+    box-sizing: border-box;
+    border: 1px solid #ffffff88;
 }
 
 /*#region input range*/
