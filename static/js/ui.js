@@ -286,7 +286,7 @@ class Ui {
 
         if (ui.customPlaying)
             ui.customLoad(ui.playId)
-            setTimeout(ui.playbackFlow, 10)
+            //setTimeout(ui.playbackFlow, 10)
     }
 
     removeHandler () {
