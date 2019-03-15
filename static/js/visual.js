@@ -8,6 +8,7 @@ class Visual {
         this.barsBotRight = []
         this.doRender = false
         this.genElems()
+        this.changeCounter = 0
     }
 
     genElems() {
@@ -66,13 +67,34 @@ class Visual {
     }
 
     render() {
+        requestAnimationFrame(this.render.bind(this))
         if (this.doRender) {
-            requestAnimationFrame(this.render.bind(this))
+            //requestAnimationFrame(this.render.bind(this))
+            this.changeCounter += 1
+
             for (let i = 0; i < music.analyser.frequencyBinCount; i++) {
                 let td = music.getTrackData()[i]
                 let r = td
                 let g = 255 - td
                 let b = 0
+
+                if (this.changeCounter % 1000 >= 250) {
+                    r = 0
+                    g = td
+                    b = 255 - td
+                }
+                if (this.changeCounter % 1000 >= 500) {
+                    r = 255 - td
+                    g = 0
+                    b = td
+                }
+                if (this.changeCounter % 1000 >= 750) {
+                    r = 255 - td
+                    g = 255 - td
+                    b = 255 - td
+                }
+                if (this.changeCounter > 1000) this.changeCounter = 0
+                
                 this.barsTopLeft[i].style.height = td / 2 + 'px'
                 this.barsTopLeft[i].style.backgroundColor = 'rgb(' + r + ', ' + g + ', ' + b + ')'
                 this.barsBotLeft[i].style.height = td / 2 + 'px'
