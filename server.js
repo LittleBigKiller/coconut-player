@@ -134,19 +134,18 @@ function postResponse(req, res) {
                 }
                 res.end(JSON.stringify(resData))
             })   
-        } /*else if (reqData.type == 'GET-CUSTOM') {
+        } else if (reqData.type == 'GET-CUSTOM') {
             resData.custom = savedCustom
-            console.log(resData)
-            console.log(savedCustom)
             res.end(JSON.stringify(resData))
         } else if (reqData.type == 'SEND-CUSTOM') {
             savedCustom = []
-            for (let i in reqData['custom[]'])
+            for (let i in reqData['custom[]']) {
+                if (reqData['custom[]'][i] == '') continue
                 savedCustom.push(reqData['custom[]'][i])
-            console.log(reqData)
+            }
             res.end('saved')
             console.log(savedCustom)
-        } */else {
+        } else {
             console.error('Invalid request')
         }
     })

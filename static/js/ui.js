@@ -11,12 +11,12 @@ class Ui {
         this.playlist = []
         this.playId
         this.customPlaylist = []
-        /*net.loadCustom().then(function(value) {
+        net.loadCustom().then(function(value) {
             console.log(value)
             ui.customPlaylist = []
             for (let i in value.custom)
                 ui.customPlaylist.push(value.custom[i])
-        })*/
+        })
         this.customOn = false
         this.customPlaying = false
     }
@@ -272,7 +272,7 @@ class Ui {
         $('#playback-timestamps').html(this.readableTime(audioElem.currentTime) + '/' + this.readableTime(audioElem.duration))
     }
 
-    playHandler () {
+    playHandler() {
         if (ui.customOn) {
             ui.customLoad(this.parentElement.savedId)
             ui.customPlaying = true
@@ -282,22 +282,22 @@ class Ui {
             ui.customPlaying = false
         }
         this.removeEventListener('click', ui.playHandler)
-        ui.playbackFlow();
+        ui.playbackFlow()
     }
 
-    addHandler () {
+    addHandler() {
         ui.customPlaylist.push(ui.albumNames[ui.dispId] + '/' + ui.trackNames[this.parentElement.savedId])
         ui.updateTable()        
         this.removeEventListener('click', ui.addHandler)
 
-        //net.sendCustom()
+        net.sendCustom()
 
         if (ui.customPlaying)
             ui.customLoad(ui.playId)
             //setTimeout(ui.playbackFlow, 10)
     }
 
-    removeHandler () {
+    removeHandler() {
         if (ui.customPlaylist.length != 0) {
             let text = this.parentElement.parentElement.children[1].innerHTML
             let index = -1
@@ -328,7 +328,7 @@ class Ui {
                     setTimeout(ui.playbackFlow, 10)
             }
 
-            //net.sendCustom()
+            net.sendCustom()
 
             this.removeEventListener('click', ui.removeHandler)
         }
@@ -368,6 +368,9 @@ class Ui {
     customLoad(id) {
         if (ui.customPlaylist.length == 0) {
             console.error('custom jest pusty')
+            ui.customPlaylist = []
+            net.sendCustom()
+            setTimeout( () => {location.reload()}, 1)
         } else {
             ui.playlist = []
             ui.playId = id
