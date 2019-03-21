@@ -3,6 +3,7 @@ console.log('music.js loaded')
 class Music {
     constructor() {
         this.audioElem = $('#playback-audio')
+        this.audioElem.on("ended", function () { music.loadNext() })
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.audioContext = new AudioContext()
         this.source = this.audioContext.createMediaElementSource(this.audioElem[0])

@@ -37,4 +37,43 @@ class Net {
             },
         })
     }
+
+    /*async loadCustom() {
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                data: {
+                    type: 'GET-CUSTOM',
+                },
+                type: 'POST',
+                success: function (data) {
+                    resolve(JSON.parse(data))
+                },
+                error: function (xhr, status, error) {
+                    console.log(error)
+                    console.log(xhr)
+                },
+            })
+        })
+    }
+
+    sendCustom() {
+        let list = []
+        for (let i in ui.customPlaylist)
+            list.push(ui.customPlaylist[i])
+        $.ajax({
+            data: {
+                type: 'SEND-CUSTOM',
+                custom: list,
+            },
+            type: 'POST',
+            dataType: 'json',
+            contentType: "application/json;charset=utf-8",
+            success: function (data) {
+                console.error(data)
+            },
+            error: function (xhr, status, error) {
+                console.error(error)
+            },
+        })
+    }*/
 }

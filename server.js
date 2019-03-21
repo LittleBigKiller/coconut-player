@@ -4,6 +4,7 @@ var fs = require('fs')
 var PORT = 5500
 
 var albumNames = []
+var savedCustom = []
 
 var server = http.createServer(function(req,res){
     console.log(req.method + ' ' + req.url)
@@ -132,8 +133,20 @@ function postResponse(req, res) {
                     resData.trackSizes.push(fs.statSync(__dirname + '/static/mp3/' + albumNames[reqData.albumId] + '/' + trackNames[i]).size)
                 }
                 res.end(JSON.stringify(resData))
-            })
-        } else {
+            })   
+        } /*else if (reqData.type == 'GET-CUSTOM') {
+            resData.custom = savedCustom
+            console.log(resData)
+            console.log(savedCustom)
+            res.end(JSON.stringify(resData))
+        } else if (reqData.type == 'SEND-CUSTOM') {
+            savedCustom = []
+            for (let i in reqData['custom[]'])
+                savedCustom.push(reqData['custom[]'][i])
+            console.log(reqData)
+            res.end('saved')
+            console.log(savedCustom)
+        } */else {
             console.error('Invalid request')
         }
     })

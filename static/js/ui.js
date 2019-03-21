@@ -11,6 +11,12 @@ class Ui {
         this.playlist = []
         this.playId
         this.customPlaylist = []
+        /*net.loadCustom().then(function(value) {
+            console.log(value)
+            ui.customPlaylist = []
+            for (let i in value.custom)
+                ui.customPlaylist.push(value.custom[i])
+        })*/
         this.customOn = false
         this.customPlaying = false
     }
@@ -284,6 +290,8 @@ class Ui {
         ui.updateTable()        
         this.removeEventListener('click', ui.addHandler)
 
+        //net.sendCustom()
+
         if (ui.customPlaying)
             ui.customLoad(ui.playId)
             //setTimeout(ui.playbackFlow, 10)
@@ -316,8 +324,11 @@ class Ui {
             ui.updateTable()
             if (ui.customOn) {
                 ui.customDisplay()
-                setTimeout(ui.playbackFlow, 10)
+                if (ui.customPlaying)
+                    setTimeout(ui.playbackFlow, 10)
             }
+
+            //net.sendCustom()
 
             this.removeEventListener('click', ui.removeHandler)
         }
